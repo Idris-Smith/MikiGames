@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Miki Games</title>
+<meta name="description" content="Tiny browser games by Miki. No downloads, just press play.">
+<link rel="icon" href="assets/face-idle.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Chakra+Petch:wght@500;700&display=swap">
+<style>
+:root{--ink:#14082e;--violet:#2b1470;--violet2:#3d1f9a;--paper:#fff4dc;--sun:#ffc933;--hot:#ff6b2c;--cyan:#35e0ff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#14082e;--violet:#2b1470;--paper:#fff4dc}}
+:root[data-theme="dark"]{--ink:#14082e;--violet:#2b1470;--paper:#fff4dc}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{margin:0;background:var(--violet);color:var(--paper);font:500 18px/1.5 "Chakra Petch",system-ui,sans-serif;overflow-x:hidden;min-height:100%}
+body::before{content:"";position:fixed;inset:-60px;z-index:0;pointer-events:none;transform:translate(var(--px,0),var(--py,0));
+ background-image:radial-gradient(2px 2px at 20px 30px,#fff,transparent),radial-gradient(2.5px 2.5px at 140px 90px,var(--sun),transparent),radial-gradient(2px 2px at 220px 200px,var(--cyan),transparent),radial-gradient(1.5px 1.5px at 80px 250px,#fff,transparent);background-size:260px 280px}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
+.top,main,footer{position:relative;z-index:1}
+.top{display:flex;justify-content:space-between;align-items:center;padding:18px clamp(16px,4vw,48px)}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.name{font:400 24px "Bungee","Arial Black",Impact,sans-serif;text-shadow:3px 3px 0 var(--ink)}
+.top nav a{font:400 16px "Bungee","Arial Black",sans-serif;text-decoration:none;background:var(--paper);color:var(--ink);padding:8px 16px;border:3px solid var(--ink);border-radius:999px;box-shadow:3px 3px 0 var(--ink)}
+/* face sprite: two stacked images, swapped on hover/tap */
+.face{position:relative;display:block;width:36px;aspect-ratio:93/128}
+.face img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;image-rendering:pixelated}
+.face .b{opacity:0}
+.hov:hover .face .a,.hov:focus-visible .face .a,.face.open .a{opacity:0}
+.hov:hover .face .b,.hov:focus-visible .face .b,.face.open .b{opacity:1}
+/* hero */
+.hero{display:grid;grid-template-columns:1.25fr 1fr;gap:24px;align-items:center;padding:20px clamp(16px,4vw,48px) 70px;max-width:1200px;margin:0 auto}
+.word{font:400 clamp(60px,11vw,138px)/.9 "Bungee","Arial Black",Impact,sans-serif;margin:0 0 20px;text-shadow:6px 6px 0 var(--ink)}
+.word span{display:block}
+.word span:first-child{color:var(--sun)}
+.word i{display:inline-block;font-style:normal;transition:transform .25s cubic-bezier(.3,1.9,.5,1)}
+.word i:hover{transform:translateY(-.14em) rotate(-8deg)}
+.lead{max-width:30ch;font-size:clamp(19px,2.2vw,24px);margin:0 0 28px}
+.btns{display:flex;flex-wrap:wrap;gap:16px}
+.btn{font:400 18px "Bungee","Arial Black",sans-serif;text-decoration:none;background:var(--sun);color:var(--ink);padding:14px 24px;border:4px solid var(--ink);border-radius:14px;box-shadow:6px 6px 0 var(--ink);transition:transform .1s,box-shadow .1s}
+.btn.alt{background:var(--cyan)}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 var(--ink)}
+.btn:active{transform:translate(5px,5px);box-shadow:1px 1px 0 var(--ink)}
+.stage{position:relative;justify-self:center;padding:34px 10px 10px}
+.mascot{position:relative;display:block;width:clamp(230px,34vw,400px);aspect-ratio:1;border:0;background:none;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ring{position:absolute;inset:0;border:4px dashed var(--cyan);border-radius:50%;animation:spin 40s linear infinite}
+.badge{position:absolute;inset:9%;border-radius:50%;background:var(--sun);border:6px solid var(--ink);box-shadow:10px 10px 0 var(--hot);display:grid;place-items:center;overflow:hidden}
+.badge .face{width:60%;transition:transform .12s ease-out}
+.say{position:absolute;left:-2%;top:0;max-width:210px;margin:0;background:var(--paper);color:var(--ink);border:3px solid var(--ink);border-radius:16px;padding:8px 14px;font-weight:700;line-height:1.25;box-shadow:4px 4px 0 var(--ink);transform:rotate(-4deg);z-index:2}
+.say::after{content:"";position:absolute;right:26px;bottom:-11px;width:16px;height:16px;background:var(--paper);border:3px solid var(--ink);border-width:0 3px 3px 0;transform:rotate(45deg)}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* belt */
+.belt{background:var(--sun);color:var(--ink);border-block:4px solid var(--ink);transform:rotate(-1.6deg);margin:0 -20px;overflow:hidden;position:relative;z-index:1}
+.track{display:flex;width:max-content;animation:belt 30s linear infinite;font:400 20px/1 "Bungee","Arial Black",sans-serif;padding:14px 0}
+.track span{display:inline-flex;align-items:center;gap:14px;padding-right:34px;white-space:nowrap}
+.track .face{width:24px}
+@keyframes belt{to{transform:translateX(-50%)}}
+/* games */
+.shelf{max-width:1200px;margin:0 auto;padding:90px clamp(16px,4vw,48px) 90px}
+.shelf h2{font:400 clamp(38px,6vw,64px)/1 "Bungee","Arial Black",sans-serif;margin:0 0 10px;text-shadow:4px 4px 0 var(--ink)}
+.shelf>p{margin:0 0 36px;max-width:46ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:34px 30px}
+@media(min-width:900px){.card.game{grid-column:span 2}}
+.card{display:flex;flex-direction:column;text-align:left;color:var(--ink);background:var(--paper);border:4px solid var(--ink);border-radius:22px;box-shadow:9px 9px 0 var(--cyan);overflow:hidden;text-decoration:none;font:inherit;padding:0;cursor:pointer;
+ transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(var(--ly,0px));transition:transform .15s ease-out,box-shadow .15s}
+.card:hover{--ly:-6px;box-shadow:13px 13px 0 var(--hot)}
+.scene{position:relative;aspect-ratio:16/9;overflow:hidden;background:#1a1240;border-bottom:4px solid var(--ink)}
+.scene>img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.arm{position:absolute;right:18%;width:16%;animation:run 3.2s linear infinite paused}
+.arm.t{top:0}.arm.b{bottom:0}
+.sface{position:absolute;left:22%;top:50%;width:8%;transform:translateY(-50%) rotate(-8deg);animation:bob .7s ease-in-out infinite alternate paused}
+.sface.face{width:8%}
+.card:hover .arm,.card:hover .sface,.card:focus-visible .arm,.card:focus-visible .sface{animation-play-state:running}
+@keyframes run{from{transform:translateX(300%)}to{transform:translateX(-700%)}}
+@keyframes bob{from{transform:translateY(-95%) rotate(-12deg)}to{transform:translateY(-5%) rotate(10deg)}}
+.info{padding:18px 22px 24px}
+.info h3{font:400 30px/1.1 "Bungee","Arial Black",sans-serif;margin:0 0 6px}
+.info p{margin:0 0 16px;font-weight:500}
+.pill{display:inline-block;font:400 15px "Bungee","Arial Black",sans-serif;background:var(--hot);color:var(--ink);padding:8px 16px;border:3px solid var(--ink);border-radius:999px}
+.card.soon{background:var(--violet2);color:var(--paper);border-style:dashed;border-color:var(--paper);box-shadow:none;justify-content:center;align-items:center;text-align:center;padding:34px 22px;min-height:260px}
+.card.soon:hover{box-shadow:9px 9px 0 var(--sun)}
+.q{font:400 84px/1 "Bungee","Arial Black",sans-serif;color:var(--sun);text-shadow:4px 4px 0 var(--ink)}
+.card.soon h3{font:400 24px "Bungee","Arial Black",sans-serif;margin:8px 0 4px}
+.card.soon p{margin:0;max-width:24ch}
+.shake{animation:shake .4s}
+@keyframes shake{25%{translate:-8px 0}50%{translate:8px 0}75%{translate:-5px 0}}
+footer{display:flex;align-items:center;justify-content:center;gap:12px;padding:0 20px 50px;font-weight:700;text-align:center}
+@media(max-width:800px){.hero{grid-template-columns:1fr;text-align:left}.stage{order:-1;justify-self:start}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<header class="top">
+  <a class="brand hov" href="#top" aria-label="Miki Games home">
+    <span class="face"><img class="a" src="assets/face-idle.png" alt=""><img class="b" src="assets/face-open.png" alt=""></span>
+    <span class="name">Miki Games</span>
+  </a>
+  <nav><a href="#games">Games</a></nav>
+</header>
+<main id="top">
+  <section class="hero">
+    <div>
+      <h1 class="word" aria-label="Miki Games"><span>Miki</span><span>Games</span></h1>
+      <p class="lead">Tiny games that run right in your browser. No downloads, no sign-ups. Just press play.</p>
+      <div class="btns"><a class="btn" href="games/flap-factory/">Play Flap Factory</a><a class="btn alt" href="#games">See all games</a></div>
+    </div>
+    <div class="stage">
+      <p class="say" id="say" aria-live="polite">Poke me!</p>
+      <button class="mascot hov" id="mascot" type="button" aria-label="Poke Miki">
+        <span class="ring"></span>
+        <span class="badge"><span class="face" id="mface"><img class="a" src="assets/face-idle.png" alt=""><img class="b" src="assets/face-open.png" alt=""></span></span>
+      </button>
+    </div>
+  </section>
+  <div class="belt" aria-hidden="true"><div class="track" id="track">
+    <span><i class="face"><img class="a" src="assets/face-idle.png" alt=""><img class="b" src="assets/face-open.png" alt=""></i>Flap Factory is live</span>
+    <span><i class="face open"><img class="a" src="assets/face-idle.png" alt=""><img class="b" src="assets/face-open.png" alt=""></i>More games on the way</span>
+    <span><i class="face"><img class="a" src="assets/face-idle.png" alt=""><img class="b" src="assets/face-open.png" alt=""></i>Dodge the robot arms</span>
+    <span><i class="face open"><img class="a" src="assets/face-idle.png" alt=""><img class="b" src="assets/face-open.png" alt=""></i>Poke Miki at the top of the page</span>
+  </div></div>
+  <section class="shelf" id="games">
+    <h2>Pick a game</h2>
+    <p>Hover a cabinet to wake it up. New games land here as Miki finishes them.</p>
+    <div class="grid">
+      <!-- ADD A NEW GAME: copy this whole card, change the link, title, text and images -->
+      <a class="card game hov" href="games/flap-factory/">
+        <div class="scene">
+          <img class="bg" src="assets/ff-bg.jpg" alt="">
+          <img class="arm t" src="assets/ff-arm-top.png" alt="">
+          <img class="arm b" src="assets/ff-arm-bot.png" alt="">
+          <span class="face sface"><img class="a" src="assets/face-idle.png" alt=""><img class="b" src="assets/face-open.png" alt=""></span>
+        </div>
+        <div class="info">
+          <h3>Flap Factory</h3>
+          <p>Flap a face through a robot factory. How many grabby arms can you dodge?</p>
+          <span class="pill">Play now</span>
+        </div>
+      </a>
+      <!-- Mystery cards are placeholders: delete them as you add real games -->
+      <button class="card soon" type="button"><span class="q">?</span><h3>Mystery game</h3><p>Miki is cooking something. Check back soon.</p></button>
+    </div>
+  </section>
+</main>
+<footer>
+  <span class="face hov" style="width:28px"><img class="a" src="assets/face-idle.png" alt=""><img class="b" src="assets/face-open.png" alt=""></span>
+  <span>Made by Miki. Built for fun, and for flapping.</span>
+</footer>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const calm=matchMedia("(prefers-reduced-motion:reduce)").matches;
+// split the title into letters so each one can hop on hover
+$$(".word span").forEach(s=>{s.innerHTML=[...s.textContent].map(c=>"<i>"+c+"</i>").join("")});
+// loop the belt: duplicate its content so -50% scroll is seamless
+const tr=$("#track");tr.innerHTML+=tr.innerHTML;
+// tiny sound blip
+let AC;function blip(f){try{AC=AC||new AudioContext();const n=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.type="square";o.frequency.setValueAtTime(f,n);o.frequency.exponentialRampToValueAtTime(f*1.8,n+.1);g.gain.setValueAtTime(.06,n);g.gain.exponentialRampToValueAtTime(.001,n+.14);o.connect(g);g.connect(AC.destination);o.start();o.stop(n+.15)}catch(e){}}
+function flash(el,ms){el.classList.add("open");clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("open"),ms)}
+// mascot: face leans toward the cursor, pokes cause confetti + a quip
+const m=$("#mascot"),mf=$("#mface"),say=$("#say"),badge=$(".badge");
+addEventListener("pointermove",e=>{
+  const r=m.getBoundingClientRect(),dx=(e.clientX-r.left-r.width/2)/innerWidth,dy=(e.clientY-r.top-r.height/2)/innerHeight;
+  if(!calm){mf.style.transform="translate("+dx*60+"px,"+dy*40+"px) rotate("+dx*22+"deg)";
+    document.documentElement.style.setProperty("--px",-e.clientX/innerWidth*24+"px");document.documentElement.style.setProperty("--py",-e.clientY/innerHeight*24+"px")}
+});
+const lines=["Boop!","Hey! Watch the hair.","Wanna flap?","Dodge the robots!","Ow. Rude.","Press play already!","Do that again.","I felt that."];
+let pokes=0;
+function confetti(x,y){if(calm)return;
+  for(let i=0;i<18;i++){const d=document.createElement("i"),a=Math.random()*6.28,s=60+Math.random()*120;
+    d.style.cssText="position:fixed;z-index:9;pointer-events:none;width:10px;height:10px;left:"+x+"px;top:"+y+"px;background:"+["#ffc933","#ff6b2c","#35e0ff","#fff4dc"][i%4];
+    document.body.appendChild(d);
+    d.animate([{transform:"translate(0,0) rotate(0)",opacity:1},{transform:"translate("+Math.cos(a)*s+"px,"+(Math.sin(a)*s+60)+"px) rotate(360deg)",opacity:0}],{duration:700+Math.random()*400,easing:"cubic-bezier(.2,.7,.4,1)"}).onfinish=()=>d.remove()}}
+m.addEventListener("click",e=>{
+  pokes++;flash(mf,650);blip(300+Math.random()*300);
+  say.textContent=pokes===10?"Ten pokes. We’re basically friends now.":lines[pokes%lines.length];
+  if(!calm){badge.animate([{transform:"scale(1)"},{transform:"scale(1.1) rotate(-4deg)"},{transform:"scale(1)"}],{duration:280,easing:"ease-out"});
+    say.animate([{transform:"rotate(-4deg) scale(.7)"},{transform:"rotate(-4deg) scale(1.08)"},{transform:"rotate(-4deg) scale(1)"}],{duration:250})}
+  const r=m.getBoundingClientRect();confetti(e.clientX||r.left+r.width/2,e.clientY||r.top+r.height/2);
+});
+// game cards: 3D tilt toward the pointer, and a tap flash on touch screens
+$$(".card").forEach(c=>{
+  c.addEventListener("pointermove",e=>{if(calm||e.pointerType==="touch")return;const r=c.getBoundingClientRect();
+    c.style.setProperty("--ry",((e.clientX-r.left)/r.width-.5)*8+"deg");c.style.setProperty("--rx",-((e.clientY-r.top)/r.height-.5)*8+"deg")});
+  c.addEventListener("pointerleave",()=>{c.style.setProperty("--rx","0deg");c.style.setProperty("--ry","0deg")});
+});
+$$(".card.game .sface").forEach(f=>f.closest(".card").addEventListener("pointerdown",e=>{if(e.pointerType==="touch")flash(f,500)}));
+$$(".card.soon").forEach(c=>c.addEventListener("click",()=>{
+  c.classList.remove("shake");void c.offsetWidth;c.classList.add("shake");blip(200);
+  c.querySelector("p").textContent="Not ready yet! Check back soon."}));
+</script></body></html>
